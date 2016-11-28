@@ -1,0 +1,24 @@
+{
+  "name": "ts-server",
+  "version": "0.0.1",
+  "description": "",
+  "main": "dist/ts-server.js",
+  "scripts": {
+    "babel": "babel src/ts-server.js -o dist/ts-server.js"
+  },
+  "keywords": [
+  ],
+  "author": "tangshuang",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tangshuang/ts-server.git"
+  },
+  "bugs": {
+    "url": "https://github.com/tangshuang/ts-server/issues"
+  },
+  "license": "ISC",
+  "devDependencies": {
+    "babel-cli": "^6.18.0",
+    "babel-preset-latest": "^6.16.0"
+  }
+}
