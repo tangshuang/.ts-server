@@ -6,7 +6,8 @@
   "scripts": {
     "babel": "babel src/ts-server.js -o dist/ts-server.js"
   },
-  "keywords": [],
+  "keywords": [
+  ],
   "author": "tangshuang",
   "repository": {
     "type": "git",
