@@ -1,0 +1,37 @@
+{
+  "name": "ts-server",
+  "version": "0.0.1",
+  "description": "",
+  "main": "dist/ts-server.js",
+  "scripts": {
+    "babel": "babel src/ts-server.js -o dist/ts-server.js"
+  },
+  "keywords": [],
+  "author": "tangshuang",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tangshuang/ts-server.git"
+  },
+  "bugs": {
+    "url": "https://github.com/tangshuang/ts-server/issues"
+  },
+  "license": "ISC",
+  "devDependencies": {
+    "babel-cli": "^6.18.0",
+    "babel-core": "^6.18.2",
+    "babel-preset-latest": "^6.16.0"
+  },
+  "dependencies": {
+    "connect": "^3.5.0",
+    "connect-livereload": "^0.6.0",
+    "extend": "^3.0.0",
+    "http": "0.0.0",
+    "open": "0.0.5",
+    "process.logger": "^1.0.0",
+    "serve-index": "^1.8.0",
+    "serve-static": "^1.11.1",
+    "tiny-lr": "^1.0.3",
+    "url": "^0.11.0",
+    "watch": "^1.0.1"
+  }
+}
