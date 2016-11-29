@@ -37,7 +37,6 @@ export default class TsServer {
 			},
 			middleware: [],
 			indexes: false,
-			debug: false,
 		}
 		options = extend(true, {}, defaults, options)
 		this.options = options
@@ -71,7 +70,7 @@ export default class TsServer {
 					},
 				})
 				if(typeof file === "string") {
-					logger.help(`File "${file}" has been changed.`)
+					logger().help(`File "${file}" has been changed.`)
 				}
 			})
 			this.livereloadServer = livereloadServer
@@ -99,12 +98,12 @@ export default class TsServer {
 		})
 		open(page)
 		logger({
-			text: "URL: ",
+			text: "URL:",
 		}, {
 			style: "help",
 			text: page,
 		}, {
-			text: " has been opened in your browser.",
+			text: "has been opened in your browser.",
 		})
 	}
 	reload() {

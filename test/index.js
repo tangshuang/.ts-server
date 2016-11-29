@@ -1,4 +1,4 @@
-import TsServer from "../src/ts-server"
+var TsServer = require("../dist/ts-server")
 
 var server = new TsServer()
 server.setup({
@@ -6,7 +6,7 @@ server.setup({
 	livereload: {
 		enable: true,
 		filter: function(file) {
-			return file !== "index.js"
+			return file.indexOf("index.js") === -1
 		},
 	}
 })
