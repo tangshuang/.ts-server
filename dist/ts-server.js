@@ -120,7 +120,7 @@ var TsServer = function () {
 						}
 					});
 					if (typeof file === "string") {
-						(0, _process2.default)().help("File \"" + file + "\" has been changed.");
+						_process2.default.set("timestamp", true).help("File \"" + file + "\" has been changed.");
 					}
 				});
 				this.livereloadServer = livereloadServer;
@@ -150,12 +150,12 @@ var TsServer = function () {
 			});
 			(0, _open3.default)(page);
 			(0, _process2.default)({
-				text: "URL: "
+				text: "URL:"
 			}, {
 				style: "help",
 				text: page
 			}, {
-				text: " has been opened in your browser."
+				text: "has been opened in your browser."
 			});
 		}
 	}, {

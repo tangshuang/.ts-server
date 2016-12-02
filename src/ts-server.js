@@ -70,7 +70,7 @@ export default class TsServer {
 					},
 				})
 				if(typeof file === "string") {
-					logger().help(`File "${file}" has been changed.`)
+					logger.set("timestamp", true).help(`File "${file}" has been changed.`)
 				}
 			})
 			this.livereloadServer = livereloadServer
