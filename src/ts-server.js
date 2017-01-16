@@ -34,6 +34,9 @@ export default class TsServer {
 						return true
 					}
 				},
+				callback: function() {
+
+				},
 			},
 			middleware: [],
 			indexes: false,
@@ -72,6 +75,9 @@ export default class TsServer {
 				if(typeof file === "string") {
 					logger.set("timestamp", true).help(`File "${file}" has been changed.`)
 				}
+				if(typeof options.livereload.callback === "function") {
+					options.livereload.callback(file)
+				}
 			})
 			this.livereloadServer = livereloadServer
 		}
@@ -98,7 +104,7 @@ export default class TsServer {
 		})
 		open(page)
 		logger({
-			text: "URL:",
+			text: "Url",
 		}, {
 			style: "help",
 			text: page,
