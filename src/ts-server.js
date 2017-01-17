@@ -8,7 +8,6 @@ import watch from "watch"
 import url from "url"
 import extend from "extend"
 import serveIndex from "serve-index"
-import logger from "process.logger"
 
 export default class TsServer {
 	constructor() {
@@ -65,19 +64,23 @@ export default class TsServer {
 			// watch files for livereload
 			watch.watchTree(options.livereload.directory, {
 				ignoreDotFiles: true,
-				filter: options.livereload.filter
-			}, file => {
-				livereloadServer.changed({
-					body: {
-						files: file,
-					},
-				})
-				if(typeof file === "string") {
-					logger.set("timestamp", true).help(`File "${file}" has been changed.`)
-				}
-				if(typeof options.livereload.callback === "function") {
-					options.livereload.callback(file)
-				}
+				filter: options.livereload.filter,
+				ignoreDirectoryPattern: options.livereload.ignoreDirectoryPattern,
+			}, (file, current, previous) => {
+				if(typeof file == "object" && previous === null && current === null) {
+					// ready
+			    }
+			    else {
+			      	// changed
+					if(typeof options.livereload.onChange === "function") {
+						options.livereload.onChange(file, current, previous)
+					}
+					livereloadServer.changed({
+						body: {
+							files: file,
+						},
+					})
+			    }
 			})
 			this.livereloadServer = livereloadServer
 		}
@@ -88,6 +91,11 @@ export default class TsServer {
 
 		// our local path routers
 		app.use(serveStatic(options.root))
+
+		// backend server
+		if(typeof options.backendServer === "function") {
+			options.backendServer(app)
+		}
 
 		var self = this
 		var server = this.server = http.createServer(app).listen(options.port, options.host, () => {
@@ -103,14 +111,6 @@ export default class TsServer {
 			pathname: uri,
 		})
 		open(page)
-		logger({
-			text: "Url",
-		}, {
-			style: "help",
-			text: page,
-		}, {
-			text: "has been opened in your browser.",
-		})
 	}
 	reload() {
 		var livereloadServer = this.livereloadServer

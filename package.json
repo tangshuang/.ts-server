@@ -1,13 +1,10 @@
 {
   "name": "ts-server",
-  "version": "0.0.3",
+  "version": "0.0.9",
   "description": "",
   "main": "dist/ts-server.js",
-  "scripts": {
-    "babel": "babel src/ts-server.js -o dist/ts-server.js"
-  },
-  "keywords": [
-  ],
+  "scripts": {},
+  "keywords": [],
   "author": "tangshuang",
   "repository": {
     "type": "git",
@@ -27,7 +24,6 @@
     "extend": "^3.0.0",
     "http": "0.0.0",
     "open": "0.0.5",
-    "process.logger": "^1.1.2",
     "serve-index": "^1.8.0",
     "serve-static": "^1.11.1",
     "tiny-lr": "^1.0.3",

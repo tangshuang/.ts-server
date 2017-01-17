@@ -51,6 +51,8 @@ module.exports =
 		value: true
 	});
 
+	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 	var _http = __webpack_require__(1);
@@ -92,10 +94,6 @@ module.exports =
 	var _serveIndex = __webpack_require__(10);
 
 	var _serveIndex2 = _interopRequireDefault(_serveIndex);
-
-	var _process = __webpack_require__(11);
-
-	var _process2 = _interopRequireDefault(_process);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -160,18 +158,21 @@ module.exports =
 					// watch files for livereload
 					_watch2.default.watchTree(options.livereload.directory, {
 						ignoreDotFiles: true,
-						filter: options.livereload.filter
-					}, function (file) {
-						livereloadServer.changed({
-							body: {
-								files: file
+						filter: options.livereload.filter,
+						ignoreDirectoryPattern: options.livereload.ignoreDirectoryPattern
+					}, function (file, current, previous) {
+						if ((typeof file === "undefined" ? "undefined" : _typeof(file)) == "object" && previous === null && current === null) {
+							// ready
+						} else {
+							// changed
+							if (typeof options.livereload.onChange === "function") {
+								options.livereload.onChange(file, current, previous);
 							}
-						});
-						if (typeof file === "string") {
-							_process2.default.set("timestamp", true).help("File \"" + file + "\" has been changed.");
-						}
-						if (typeof options.livereload.callback === "function") {
-							options.livereload.callback(file);
+							livereloadServer.changed({
+								body: {
+									files: file
+								}
+							});
 						}
 					});
 					this.livereloadServer = livereloadServer;
@@ -183,6 +184,11 @@ module.exports =
 
 				// our local path routers
 				app.use((0, _serveStatic2.default)(options.root));
+
+				// backend server
+				if (typeof options.backendServer === "function") {
+					options.backendServer(app);
+				}
 
 				var self = this;
 				var server = this.server = _http2.default.createServer(app).listen(options.port, options.host, function () {
@@ -200,14 +206,6 @@ module.exports =
 					pathname: uri
 				});
 				(0, _open3.default)(page);
-				(0, _process2.default)({
-					text: "Url"
-				}, {
-					style: "help",
-					text: page
-				}, {
-					text: "has been opened in your browser."
-				});
 			}
 		}, {
 			key: "reload",
@@ -298,12 +296,6 @@ module.exports =
 /***/ function(module, exports) {
 
 	module.exports = require("serve-index");
-
-/***/ },
-/* 11 */
-/***/ function(module, exports) {
-
-	module.exports = require("process.logger");
 
 /***/ }
 /******/ ]);

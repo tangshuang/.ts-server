@@ -69,6 +69,7 @@ default options:
 	},
 	middleware: [], // middleware for node http app.use. livereload is a middleware in fact
 	indexes: false, // whether to display file indexes when you visit a folder
+	backendServer: false, // pass a function with parameter `app` to server up a back end server `function(app) {}`
 }
 ```
 
