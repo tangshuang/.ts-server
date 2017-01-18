@@ -1,9 +1,8 @@
 import http from "http"
 import open from "open"
-import connect from "connect"
+import express from "express"
 import livereload from "connect-livereload"
 import tinyLr from "tiny-lr"
-import serveStatic from "serve-static"
 import watch from "watch"
 import url from "url"
 import extend from "extend"
@@ -43,7 +42,7 @@ export default class TsServer {
 		options = extend(true, {}, defaults, options)
 		this.options = options
 
-		var app = connect()
+		var app = express()
 
 		// middleware routers
 		if(options.middleware instanceof Array) {
@@ -75,11 +74,16 @@ export default class TsServer {
 					if(typeof options.livereload.onChange === "function") {
 						options.livereload.onChange(file, current, previous)
 					}
+					
 					livereloadServer.changed({
 						body: {
 							files: file,
 						},
 					})
+
+					if(typeof options.onReload === "function") {
+						options.onReload()
+					}
 			    }
 			})
 			this.livereloadServer = livereloadServer
@@ -90,7 +94,7 @@ export default class TsServer {
 		}
 
 		// our local path routers
-		app.use(serveStatic(options.root))
+		app.use(express.static(options.root))
 
 		// backend server
 		if(typeof options.backendServer === "function") {
@@ -111,14 +115,21 @@ export default class TsServer {
 			pathname: uri,
 		})
 		open(page)
+		if(typeof options.onOpen === "function") {
+			options.onOpen(page)
+		}
 	}
 	reload() {
+		var options = this.options
 		var livereloadServer = this.livereloadServer
 		if(livereloadServer && typeof livereloadServer.changed === "function") {
 			livereloadServer.reload()
+			if(typeof options.onReload === "function") {
+				options.onReload()
+			}
 		}
 	}
-	destory() {
+	close() {
 		var server = this.server
 		if(server && typeof server.close === "function") {
 			server.close()
@@ -127,6 +138,11 @@ export default class TsServer {
 		var livereloadServer = this.livereloadServer
 		if(livereloadServer && typeof livereloadServer.close === "function") {
 			livereloadServer.close()
+		}
+
+		var options = this.options
+		if(typeof options.onClose === "function") {
+			options.onClose()
 		}
 	}
 }

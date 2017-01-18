@@ -63,9 +63,9 @@ module.exports =
 
 	var _open3 = _interopRequireDefault(_open2);
 
-	var _connect = __webpack_require__(3);
+	var _express = __webpack_require__(3);
 
-	var _connect2 = _interopRequireDefault(_connect);
+	var _express2 = _interopRequireDefault(_express);
 
 	var _connectLivereload = __webpack_require__(4);
 
@@ -75,23 +75,19 @@ module.exports =
 
 	var _tinyLr2 = _interopRequireDefault(_tinyLr);
 
-	var _serveStatic = __webpack_require__(6);
-
-	var _serveStatic2 = _interopRequireDefault(_serveStatic);
-
-	var _watch = __webpack_require__(7);
+	var _watch = __webpack_require__(6);
 
 	var _watch2 = _interopRequireDefault(_watch);
 
-	var _url = __webpack_require__(8);
+	var _url = __webpack_require__(7);
 
 	var _url2 = _interopRequireDefault(_url);
 
-	var _extend = __webpack_require__(9);
+	var _extend = __webpack_require__(8);
 
 	var _extend2 = _interopRequireDefault(_extend);
 
-	var _serveIndex = __webpack_require__(10);
+	var _serveIndex = __webpack_require__(9);
 
 	var _serveIndex2 = _interopRequireDefault(_serveIndex);
 
@@ -135,7 +131,7 @@ module.exports =
 				options = (0, _extend2.default)(true, {}, defaults, options);
 				this.options = options;
 
-				var app = (0, _connect2.default)();
+				var app = (0, _express2.default)();
 
 				// middleware routers
 				if (options.middleware instanceof Array) {
@@ -168,11 +164,16 @@ module.exports =
 							if (typeof options.livereload.onChange === "function") {
 								options.livereload.onChange(file, current, previous);
 							}
+
 							livereloadServer.changed({
 								body: {
 									files: file
 								}
 							});
+
+							if (typeof options.onReload === "function") {
+								options.onReload();
+							}
 						}
 					});
 					this.livereloadServer = livereloadServer;
@@ -183,7 +184,7 @@ module.exports =
 				}
 
 				// our local path routers
-				app.use((0, _serveStatic2.default)(options.root));
+				app.use(_express2.default.static(options.root));
 
 				// backend server
 				if (typeof options.backendServer === "function") {
@@ -206,18 +207,25 @@ module.exports =
 					pathname: uri
 				});
 				(0, _open3.default)(page);
+				if (typeof options.onOpen === "function") {
+					options.onOpen(page);
+				}
 			}
 		}, {
 			key: "reload",
 			value: function reload() {
+				var options = this.options;
 				var livereloadServer = this.livereloadServer;
 				if (livereloadServer && typeof livereloadServer.changed === "function") {
 					livereloadServer.reload();
+					if (typeof options.onReload === "function") {
+						options.onReload();
+					}
 				}
 			}
 		}, {
-			key: "destory",
-			value: function destory() {
+			key: "close",
+			value: function close() {
 				var server = this.server;
 				if (server && typeof server.close === "function") {
 					server.close();
@@ -226,6 +234,11 @@ module.exports =
 				var livereloadServer = this.livereloadServer;
 				if (livereloadServer && typeof livereloadServer.close === "function") {
 					livereloadServer.close();
+				}
+
+				var options = this.options;
+				if (typeof options.onClose === "function") {
+					options.onClose();
 				}
 			}
 		}]);
@@ -253,7 +266,7 @@ module.exports =
 /* 3 */
 /***/ function(module, exports) {
 
-	module.exports = require("connect");
+	module.exports = require("express");
 
 /***/ },
 /* 4 */
@@ -271,28 +284,22 @@ module.exports =
 /* 6 */
 /***/ function(module, exports) {
 
-	module.exports = require("serve-static");
+	module.exports = require("watch");
 
 /***/ },
 /* 7 */
 /***/ function(module, exports) {
 
-	module.exports = require("watch");
+	module.exports = require("url");
 
 /***/ },
 /* 8 */
 /***/ function(module, exports) {
 
-	module.exports = require("url");
-
-/***/ },
-/* 9 */
-/***/ function(module, exports) {
-
 	module.exports = require("extend");
 
 /***/ },
-/* 10 */
+/* 9 */
 /***/ function(module, exports) {
 
 	module.exports = require("serve-index");

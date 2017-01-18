@@ -94,18 +94,40 @@ Call the livereload to reload.
 $server.reload()
 ```
 
-**destory()**
+**close()**
 
-Destory the server
+Close the server
 
 ```
-$server.destory()
+$server.close()
 ```
+
+## Events
+
+**onOpen**
+
+When server is setup, and open a browser webpage, with url
+
+```
+$server.setup({
+	...
+	onOpen: function(url) {},
+	...
+})
+```
+
+**onChange**
+
+When a file is change, before reload.
+
+**onReload**
+
+After reload page.
+
+**onClose**
+
+When a server is closing.
 
 ## Development
 
-This package is written by ES6, after you change source code, you can run:
-
-```
-npm run babel
-```
+Use [componer](http://github.com/tangshuang/componer) to build.
