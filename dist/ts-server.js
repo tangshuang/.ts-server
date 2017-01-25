@@ -263,7 +263,11 @@ module.exports =
 				var options = this.options;
 				var livereloadServer = this.livereloadServer;
 				if (livereloadServer && typeof livereloadServer.changed === "function") {
-					livereloadServer.reload();
+					livereloadServer.changed({
+						body: {
+							files: "."
+						}
+					});
 
 					if (typeof options.onReload === "function") {
 						options.onReload();
