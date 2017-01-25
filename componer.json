@@ -1,7 +1,6 @@
 {
 	"entry": {
-		"script": "src/ts-server.js",
-		"test": "test"
+		"script": "src/ts-server.js"
 	},
 	"output": {
 		"script": "dist"
@@ -16,5 +15,8 @@
 		"resolve": {
 			"alias": {}
 		}
+	},
+	"test": {
+		"entry": "test/specs/index.js"
 	}
 }

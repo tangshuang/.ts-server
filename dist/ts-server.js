@@ -96,17 +96,23 @@ module.exports =
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 	var TsServer = function () {
-		function TsServer() {
+		function TsServer(options) {
 			_classCallCheck(this, TsServer);
 
 			this.options = null;
 			this.livereloadServer = null;
+			this.watcher = null;
 			this.server = null;
+			this.status = false;
+
+			if ((typeof options === "undefined" ? "undefined" : _typeof(options)) === "object") {
+				this.set(options);
+			}
 		}
 
 		_createClass(TsServer, [{
-			key: "setup",
-			value: function setup(options) {
+			key: "set",
+			value: function set(options) {
 				var defaults = {
 					host: "localhost",
 					port: 8978,
@@ -123,14 +129,34 @@ module.exports =
 								return true;
 							}
 						},
-						callback: function callback() {}
+						callback: function callback(file, current, previous) {}
 					},
 					middleware: [],
-					indexes: false
+					indexes: false,
+					onStart: function onStart(app) {},
+					onOpen: function onOpen() {},
+					onReload: function onReload() {},
+					onRestart: function onRestart() {},
+					onStop: function onStop() {}
 				};
-				options = (0, _extend2.default)(true, {}, defaults, options);
-				this.options = options;
+				this.options = (0, _extend2.default)(true, {}, defaults, options);
 
+				return this;
+			}
+		}, {
+			key: "start",
+			value: function start() {
+				if (!this.options) {
+					console.log("options have not been set. use set(options) to set.");
+					return;
+				}
+
+				if (this.status) {
+					console.log("this server is running, stop it first.");
+					return;
+				}
+
+				var options = this.options;
 				var app = (0, _express2.default)();
 
 				// middleware routers
@@ -151,9 +177,10 @@ module.exports =
 					// setup a tiny server for livereload backend
 					var livereloadServer = (0, _tinyLr2.default)();
 					livereloadServer.listen(options.livereload.port, options.host);
+					this.livereloadServer = livereloadServer;
 					// watch files for livereload
-					_watch2.default.watchTree(options.livereload.directory, {
-						ignoreDotFiles: true,
+					this.watcher = _watch2.default.watchTree(options.livereload.directory, {
+						ignoreDotFiles: options.livereload.ignoreDotFiles,
 						filter: options.livereload.filter,
 						ignoreDirectoryPattern: options.livereload.ignoreDirectoryPattern
 					}, function (file, current, previous) {
@@ -161,24 +188,22 @@ module.exports =
 							// ready
 						} else {
 							// changed
-							if (typeof options.livereload.onChange === "function") {
-								options.livereload.onChange(file, current, previous);
-							}
-
 							livereloadServer.changed({
 								body: {
 									files: file
 								}
 							});
-
 							if (typeof options.onReload === "function") {
 								options.onReload();
 							}
+							if (typeof options.livereload.onChange === "function") {
+								options.livereload.callback(file, current, previous);
+							}
 						}
 					});
-					this.livereloadServer = livereloadServer;
 				}
 
+				// directory list can be seen if there is not a index.html
 				if (options.indexes) {
 					app.use((0, _serveIndex2.default)(options.root));
 				}
@@ -187,18 +212,73 @@ module.exports =
 				app.use(_express2.default.static(options.root));
 
 				// backend server
-				if (typeof options.backendServer === "function") {
-					options.backendServer(app);
+				if (typeof options.onStart === "function") {
+					options.onStart(app);
 				}
 
 				var self = this;
 				var server = this.server = _http2.default.createServer(app).listen(options.port, options.host, function () {
 					self.open(options.open);
+					self.status = true;
 				});
 			}
 		}, {
+			key: "stop",
+			value: function stop() {
+				var options = this.options;
+				var server = this.server;
+				if (server && typeof server.close === "function") {
+					server.close();
+				}
+
+				var livereloadServer = this.livereloadServer;
+				if (livereloadServer && typeof livereloadServer.close === "function") {
+					livereloadServer.close();
+					if (this.watcher) {
+						this.watcher.unwatchTree(options.livereload.directory);
+					}
+				}
+
+				if (typeof options.onStop === "function") {
+					options.onStop();
+				}
+
+				this.status = false;
+			}
+		}, {
+			key: "restart",
+			value: function restart() {
+				this.stop();
+				this.options.open = false; // prevent to open another browser
+				this.start();
+
+				var options = this.options;
+				if (typeof options.onRestart === "function") {
+					options.onRestart();
+				}
+			}
+		}, {
+			key: "reload",
+			value: function reload() {
+				var options = this.options;
+				var livereloadServer = this.livereloadServer;
+				if (livereloadServer && typeof livereloadServer.changed === "function") {
+					livereloadServer.reload();
+
+					if (typeof options.onReload === "function") {
+						options.onReload();
+					}
+				}
+			}
+
+			// open helper to open a uri base on current url root
+
+		}, {
 			key: "open",
 			value: function open(uri) {
+				if (!uri) {
+					return;
+				}
 				var options = this.options;
 				var page = _url2.default.format({
 					protocol: "http",
@@ -209,36 +289,6 @@ module.exports =
 				(0, _open3.default)(page);
 				if (typeof options.onOpen === "function") {
 					options.onOpen(page);
-				}
-			}
-		}, {
-			key: "reload",
-			value: function reload() {
-				var options = this.options;
-				var livereloadServer = this.livereloadServer;
-				if (livereloadServer && typeof livereloadServer.changed === "function") {
-					livereloadServer.reload();
-					if (typeof options.onReload === "function") {
-						options.onReload();
-					}
-				}
-			}
-		}, {
-			key: "close",
-			value: function close() {
-				var server = this.server;
-				if (server && typeof server.close === "function") {
-					server.close();
-				}
-
-				var livereloadServer = this.livereloadServer;
-				if (livereloadServer && typeof livereloadServer.close === "function") {
-					livereloadServer.close();
-				}
-
-				var options = this.options;
-				if (typeof options.onClose === "function") {
-					options.onClose();
 				}
 			}
 		}]);

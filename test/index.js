@@ -1,7 +1,7 @@
 var TsServer = require("../dist/ts-server")
 
 var server = new TsServer()
-server.setup({
+server.set({
 	open: "test.html",
 	livereload: {
 		enable: true,
@@ -9,4 +9,4 @@ server.setup({
 			return file.indexOf("index.js") === -1
 		},
 	}
-})
+}).start()

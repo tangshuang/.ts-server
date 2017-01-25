@@ -1,6 +1,6 @@
 {
   "name": "ts-server",
-  "version": "0.0.12",
+  "version": "0.0.14",
   "description": "",
   "main": "dist/ts-server.js",
   "scripts": {},
